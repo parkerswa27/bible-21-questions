@@ -1,13 +1,4 @@
-import { QUESTION_BANK } from '../engine/questionBank.js';
-
-const SUGGESTED_IDS = [
-  'testament_old', 'gender_woman', 'role_king', 'role_prophet',
-  'wrote_book', 'morality_good', 'was_married', 'exile_before',
-];
-
-function suggestedChips() {
-  return QUESTION_BANK.filter((q) => SUGGESTED_IDS.includes(q.id));
-}
+import { SUGGESTED_QUESTIONS } from '../data/suggestedQuestions.js';
 
 function answerClass(type) {
   return `answer-${type}`;
@@ -51,9 +42,9 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-export function renderGame(root, { round, onAsk, onGuess, onRestart, onQuit }) {
+export function renderGame(root, { round, busy, onAsk, onGuess, onRestart, onQuit }) {
   const pctUsed = Math.min(100, Math.round((round.questionsUsed / round.maxQuestions) * 100));
-  const disabled = round.status !== 'playing';
+  const disabled = round.status !== 'playing' || !!busy;
 
   root.innerHTML = `
     <div class="game">
@@ -78,9 +69,9 @@ export function renderGame(root, { round, onAsk, onGuess, onRestart, onQuit }) {
           <button type="button" class="btn btn-secondary" id="guess-btn" ${disabled ? 'disabled' : ''}>Guess Character</button>
         </div>
         <div class="suggested">
-          ${suggestedChips().map((q) => `<button type="button" class="chip" data-q="${escapeHtml(q.label)}" ${disabled ? 'disabled' : ''}>${q.label}</button>`).join('')}
+          ${SUGGESTED_QUESTIONS.map((q) => `<button type="button" class="chip" data-q="${escapeHtml(q)}" ${disabled ? 'disabled' : ''}>${escapeHtml(q)}</button>`).join('')}
         </div>
-        <div class="composer__hint">${round.questionsRemaining} question${round.questionsRemaining === 1 ? '' : 's'} remaining. Guessing doesn't use up a question.</div>
+        <div class="composer__hint">${busy ? 'Thinking…' : `${round.questionsRemaining} question${round.questionsRemaining === 1 ? '' : 's'} remaining. Guessing doesn't use up a question.`}</div>
       </div>
 
       <div class="game__footer">

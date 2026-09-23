@@ -1,0 +1,20 @@
+# Render "Blueprint" — see https://render.com/docs/blueprint-spec
+#
+# IMPORTANT: this app keeps each game round in an in-memory dict (server/game_store.py).
+# That only works correctly with a SINGLE worker process, which is why the start
+# command below is pinned to --workers 1. Scaling this app beyond one instance/worker
+# would require moving round state to Redis or a small database first.
+services:
+  - type: web
+    name: bible-21-questions
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r server/requirements.txt"
+    startCommand: "cd server && gunicorn app:app --bind 0.0.0.0:$PORT --workers 1"
+    envVars:
+      - key: AI_API_KEY
+        sync: false
+      - key: AI_MODEL
+        value: claude-haiku-4-5-20251001
+      - key: PYTHON_VERSION
+        value: 3.12.7

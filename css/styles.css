@@ -370,6 +370,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 .result__refs-label { font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-faint); font-weight: 700; margin-bottom: 8px; }
 .result__refs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
 .ref-chip { font-size: 0.82rem; background: var(--color-surface-alt); border: 1px solid var(--color-border-soft); border-radius: 8px; padding: 4px 10px; color: var(--color-gold-deep); font-weight: 600; }
+.result__notes { margin: 0; padding-left: 20px; color: var(--color-text-muted); font-size: 0.9rem; line-height: 1.6; }
+.result__notes li { margin-bottom: 6px; }
 
 .result__actions { display: flex; gap: 12px; justify-content: center; margin-top: 26px; flex-wrap: wrap; }
 

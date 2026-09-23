@@ -1,0 +1,4 @@
+flask>=3.0,<4
+anthropic>=0.120,<1
+gunicorn>=21,<24
+python-dotenv>=1.0,<2

@@ -1,0 +1,25 @@
+# Secrets — never commit these
+.env
+.env.local
+.env.*.local
+*.key
+*_key
+secrets.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
