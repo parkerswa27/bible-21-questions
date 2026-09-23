@@ -204,15 +204,18 @@ or Fly.io) instead runs one long-lived container, which is exactly what this
 needs, and it has a free tier, git-push deploys, environment variables, and
 automatic HTTPS out of the box.
 
-A `render.yaml` is already in the repo:
+This repo is already on GitHub at
+[github.com/parkerswa27/bible-21-questions](https://github.com/parkerswa27/bible-21-questions),
+and a `render.yaml` blueprint is already checked in:
 
-1. Push this repo to GitHub (see below).
-2. On Render: **New → Blueprint**, point it at the repo. It reads
-   `render.yaml` automatically.
-3. Set the `AI_API_KEY` environment variable in the Render dashboard (it's
+1. On Render: **New → Blueprint**, point it at the GitHub repo above. It reads
+   `render.yaml` automatically and proposes the web service.
+2. Set the `AI_API_KEY` environment variable in the Render dashboard (it's
    marked `sync: false` in the blueprint specifically so it's never stored in
    the repo — you enter it once in Render's UI).
-4. Deploy. Render gives you an `https://<name>.onrender.com` URL.
+3. Deploy. Render gives you an `https://<name>.onrender.com` URL.
+4. From then on, every push to `main` auto-deploys — no extra setup needed,
+   that's Render's default behavior for a Blueprint-linked repo.
 
 The free tier spins down after inactivity (a ~30-60s cold start on the next
 visit) — fine for a hobby project; upgrade to a paid instance if you want it
