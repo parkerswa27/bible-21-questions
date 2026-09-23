@@ -9,6 +9,7 @@ to Redis or a small database first. For the free/low-cost single-instance
 deployment this project targets, that's not a concern.
 """
 
+import os
 import random
 import threading
 import time
@@ -18,6 +19,11 @@ from data_loader import get_characters_for_difficulty
 
 MAX_QUESTIONS = 21
 ROUND_TTL_SECONDS = 2 * 60 * 60  # stale rounds are garbage-collected after 2 hours
+
+# Usage protection: caps how many AI-fallback calls a single round may spend, so one
+# player hammering unparseable questions can't run up unbounded API cost on one
+# round. See server/rate_limit.py for the complementary per-IP-per-hour cap.
+MAX_AI_CALLS_PER_ROUND = int(os.environ.get("AI_MAX_CALLS_PER_ROUND", "10"))
 
 _rounds = {}
 _lock = threading.Lock()
@@ -36,6 +42,7 @@ def start_round(difficulty, mode="classic"):
         "mode": mode,
         "max_questions": MAX_QUESTIONS,
         "questions_used": 0,
+        "ai_calls_used": 0,
         "history": [],
         "status": "playing",  # 'playing' | 'won' | 'lost'
         "created_at": time.time(),
@@ -56,6 +63,18 @@ def _cleanup_locked():
     stale = [rid for rid, r in _rounds.items() if r["created_at"] < cutoff]
     for rid in stale:
         del _rounds[rid]
+
+
+def can_use_ai(round_obj):
+    return round_obj["ai_calls_used"] < MAX_AI_CALLS_PER_ROUND
+
+
+def record_ai_call_attempt(round_obj):
+    """Call once per actual AI attempt (i.e. once is_configured() passed and we're
+    about to hit the network), regardless of whether it succeeds — a failed call
+    still spends real API quota/cost if it reached Anthropic, so it still counts
+    against the round's budget."""
+    round_obj["ai_calls_used"] += 1
 
 
 def record_question(round_obj, question_text, answer, source):

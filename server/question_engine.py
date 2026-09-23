@@ -17,12 +17,43 @@ _WS_RE = re.compile(r"\s+")
 
 TIMELINE_CONFIDENCE_GAP = 3
 
+# Words that mark text as an actual question rather than a bare name typed into the
+# question box. If any of these lead the input (or it contains "?"), we never treat
+# it as an implicit guess — see looks_like_name_guess().
+_QUESTION_STARTERS = re.compile(
+    r"^(did|do|does|was|were|is|are|am|will|would|should|can|could|have|has|had|"
+    r"who|what|when|where|why|how)\b"
+)
+
 
 def normalize(text):
     t = text.lower()
     t = _PUNCT_RE.sub(" ", t)
     t = _WS_RE.sub(" ", t).strip()
     return t
+
+
+def looks_like_name_guess(raw_text, all_characters):
+    """True if `raw_text` isn't phrased as a question at all and exactly matches a
+    known character's name or alternate name (anywhere in the full roster, not just
+    the secret one — the player is guessing from their own knowledge, not ours).
+
+    Used by app.py to redirect a bare "David" typed into the question box straight
+    to the guess flow instead of letting it die as an unparseable question or
+    burning an AI call on something that was never a yes/no question."""
+    stripped = raw_text.strip()
+    if not stripped or "?" in stripped:
+        return False
+    if _QUESTION_STARTERS.match(stripped.lower()):
+        return False
+
+    key = stripped.lower()
+    for c in all_characters:
+        if c["name"].strip().lower() == key:
+            return True
+        if any(a.strip().lower() == key for a in c.get("alternate_names", [])):
+            return True
+    return False
 
 
 def _try_named_comparison(t, character, all_characters):

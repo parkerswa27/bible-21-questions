@@ -10,33 +10,51 @@ accurately) but its raw output NEVER reaches the browser. Every response is pars
 and validated here: only one of YES/NO/SOMETIMES/UNKNOWN is ever returned, anything
 else — including any response that leaks the character's name — is converted to
 UNKNOWN before this function returns.
+
+LOGGING RULE: this module logs enough to diagnose "why didn't the AI answer that"
+(not configured vs. call failed vs. response failed validation) without ever writing
+the API key, the secret character's name/data, or the player's raw question text to
+the log. Exception objects are logged by type only, never str(exception), since some
+SDK error messages can echo request details.
 """
 
+import logging
 import os
 import re
 
 from answer_types import make_answer
 
+logger = logging.getLogger("ai_fallback")
+
 AI_API_KEY = os.environ.get("AI_API_KEY") or os.environ.get("ANTHROPIC_API_KEY")
 AI_MODEL = os.environ.get("AI_MODEL", "claude-haiku-4-5-20251001")
 
+# The AI is a *referee over the provided data*, not a general Bible-knowledge
+# assistant — it must never answer from its own training knowledge, only from the
+# JSON we hand it, or it can contradict the curated database.
 SYSTEM_PROMPT = (
-    "You are the question-answering engine for a Bible character guessing game. "
-    "You know the secret character and its structured data. Answer the player's "
-    "question using only the provided data and Scripture-supported information. "
-    "Return exactly one classification: YES, NO, SOMETIMES, or UNKNOWN. "
-    "Never return the character's name. Never provide explanations. Never provide "
-    "clues beyond the requested classification.\n\n"
+    "You are a strict data-lookup referee for a Bible character guessing game — "
+    "not a general Bible-knowledge assistant. You will receive a JSON object of one "
+    "biblical figure's stored attributes and a player's yes/no question about that "
+    "figure.\n\n"
+    "Answer using ONLY the information in the JSON object provided. Do not use any "
+    "outside knowledge about this or any other biblical figure, even if you believe "
+    "it to be true, and do not fill in gaps from general Scripture knowledge beyond "
+    "what's in the JSON. If the JSON doesn't address the question, the correct "
+    "answer is UNKNOWN — even if you personally know the answer from elsewhere. "
+    "This keeps every answer consistent with the game's own database instead of "
+    "contradicting it.\n\n"
+    "Reply with EXACTLY one word: YES, NO, SOMETIMES, or UNKNOWN. No punctuation, no "
+    "explanation, no character name, nothing else.\n\n"
     "Guidance:\n"
-    "- YES / NO: only for facts explicitly stated in Scripture or the provided data.\n"
-    "- SOMETIMES: for reasonable inference, traditional interpretation, or genuinely "
-    "disputed/debated theological questions.\n"
-    "- UNKNOWN: whenever the provided data and Scripture do not give enough "
-    "information to answer confidently. When in doubt, prefer UNKNOWN over guessing.\n"
-    "- Distinguish explicitly stated Scripture from inference, tradition, and "
-    "disputed interpretation — only give YES/NO for the first category.\n\n"
-    "Reply with ONLY one word: YES, NO, SOMETIMES, or UNKNOWN. No punctuation, no "
-    "explanation, no character name, nothing else."
+    "- YES / NO: only when the provided JSON data clearly and directly supports that answer.\n"
+    "- SOMETIMES: when the provided data itself reflects debate/ambiguity (e.g. a "
+    "field value of 'debated'), or the question's answer genuinely depends on how a "
+    "term is defined.\n"
+    "- UNKNOWN: whenever the provided JSON data simply doesn't address the question. "
+    "This is the correct, expected answer for most out-of-scope questions — prefer "
+    "it over guessing.\n"
+    "- Never return the character's name or any wording that would identify them."
 )
 
 _VALID = {"YES": "yes", "NO": "no", "SOMETIMES": "sometimes", "UNKNOWN": "unknown"}
@@ -84,11 +102,13 @@ def answer_question(question_text, character):
     configured / the call failed — callers should treat None as "still unmatched"
     and fall back to the existing unrecognized-question flow (no question consumed)."""
     if not is_configured():
+        logger.warning("AI fallback unavailable: AI_API_KEY is not set")
         return None
 
     try:
         import anthropic
     except ImportError:
+        logger.error("AI fallback unavailable: the 'anthropic' package is not installed")
         return None
 
     try:
@@ -108,15 +128,23 @@ def answer_question(question_text, character):
             }],
         )
         raw_text = "".join(block.text for block in response.content if getattr(block, "type", None) == "text")
-    except Exception:
-        # Network/auth/rate-limit errors etc. — fail closed to "not understood", never crash the round.
+    except Exception as e:
+        # Network/auth/rate-limit/bad-model-name errors etc. — fail closed to "not
+        # understood", never crash the round. Log the exception TYPE only (never
+        # str(e), which for some SDK errors can echo request/response details) so
+        # "auth failed" is distinguishable from "rate limited" from "bad model name"
+        # without ever risking the key or character data hitting the log stream.
+        logger.warning("AI fallback call failed: %s", type(e).__name__)
         return None
 
     classification = _extract_classification(raw_text)
 
     # Defense in depth: even a well-formed classification is discarded if the raw
-    # response also leaked the character's name somewhere in the text.
+    # response also leaked the character's name somewhere in the text. Deliberately
+    # not logging raw_text here, since that's exactly the string that might contain
+    # the secret name.
     if classification is None or _contains_character_name(raw_text, character):
+        logger.warning("AI response failed validation (unparseable or leaked identifying text); forced to UNKNOWN")
         classification = "UNKNOWN"
 
     answer_type = _VALID[classification]

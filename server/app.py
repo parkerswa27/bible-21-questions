@@ -9,11 +9,13 @@ through the deliberately narrow `public_round_view` (mid-game) and `public_revea
 dict directly into a response.
 """
 
+import logging
 import os
 import sys
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request, send_from_directory
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 load_dotenv(os.path.join(PROJECT_ROOT, ".env"))  # no-op if the file doesn't exist (e.g. in production, where the host injects env vars directly)
@@ -23,10 +25,23 @@ sys.path.insert(0, os.path.dirname(__file__))  # allow `import question_engine` 
 import ai_fallback
 import data_loader
 import game_store
-from question_engine import answer_question, check_guess
+import rate_limit
+from question_engine import answer_question, check_guess, looks_like_name_guess
+
+# INFO-level so ai_fallback's diagnostic logging (not configured / call failed /
+# response failed validation) actually shows up in the host's log stream — this is
+# what makes "the AI fallback silently isn't working" diagnosable in production
+# instead of looking identical to "the rule engine just didn't match."
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
 app = Flask(__name__, static_folder=None)
 app.config["MAX_CONTENT_LENGTH"] = 4 * 1024  # a question/guess body has no business being large
+
+# Render (like Heroku/Railway) puts one reverse proxy in front of the app; without
+# this, request.remote_addr is the proxy's IP for every request, which would make
+# the per-IP AI rate limit in rate_limit.py either useless (everyone shares one
+# bucket) or spoofable. Trusting exactly one hop matches that single-proxy setup.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
 
 
 # ---------------------------------------------------------------------------
@@ -106,7 +121,14 @@ def public_reveal(round_obj):
 
 @app.route("/api/health")
 def health():
-    return jsonify({"status": "ok", "characters": len(data_loader.get_all_characters()), "aiConfigured": ai_fallback.is_configured()})
+    return jsonify({
+        "status": "ok",
+        "characters": len(data_loader.get_all_characters()),
+        "aiConfigured": ai_fallback.is_configured(),
+        "aiModel": ai_fallback.AI_MODEL if ai_fallback.is_configured() else None,
+        "aiMaxCallsPerRound": game_store.MAX_AI_CALLS_PER_ROUND,
+        "aiMaxCallsPerIpPerHour": rate_limit.MAX_AI_CALLS_PER_IP_PER_HOUR,
+    })
 
 
 @app.route("/api/difficulties")
@@ -146,12 +168,29 @@ def ask_question(round_id):
         return jsonify({"error": "question is too long"}), 400
 
     all_characters = data_loader.get_all_characters()
+
+    # A bare "David" typed into the question box isn't a question at all — treat it
+    # as a guess (doesn't cost a question turn) instead of dying as unparseable or
+    # burning an AI call on something that was never yes/no in the first place.
+    if looks_like_name_guess(text, all_characters):
+        correct = check_guess(text, round_obj["character"])
+        entry = game_store.record_guess(round_obj, text, correct)
+        return jsonify({"entry": public_entry_view(entry), "round": public_round_view(round_obj)})
+
     result = answer_question(text, round_obj["character"], all_characters)
 
     if result["matched"]:
         entry = game_store.record_question(round_obj, text, result["answer"], source="rule")
     else:
-        ai_answer = ai_fallback.answer_question(text, round_obj["character"])
+        ai_answer = None
+        # Gate on is_configured() FIRST: neither budget counter should move for a call
+        # that was never going to reach the network. Without this check, every
+        # unmatched question while AI is unconfigured would still burn down both the
+        # round's and the IP's AI budget for no reason, eventually reporting "AI
+        # budget exhausted" even though AI was never active.
+        if ai_fallback.is_configured() and game_store.can_use_ai(round_obj) and rate_limit.allow_ai_call(request.remote_addr):
+            game_store.record_ai_call_attempt(round_obj)
+            ai_answer = ai_fallback.answer_question(text, round_obj["character"])
         if ai_answer is not None:
             entry = game_store.record_question(round_obj, text, ai_answer, source="ai")
         else:
