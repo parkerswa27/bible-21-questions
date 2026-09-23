@@ -446,7 +446,7 @@
     "priest": "no",
     "disciple": "no",
     "apostle": "no",
-    "wrote_biblical_book": "debated",
+    "wrote_biblical_book": "yes",
     "genealogy_recorded": true,
     "family_members": [
       "Father: David",
@@ -486,7 +486,7 @@
     ],
     "short_description": "David's son and successor, renowned for God-given wisdom and for building the First Temple in Jerusalem, though his many foreign wives later led him into idolatry.",
     "notes": {
-      "wrote_biblical_book": "Tradition credits him with Proverbs, Ecclesiastes, and Song of Songs; scholars debate how much of each he personally wrote versus later compilers."
+      "wrote_biblical_book": "Traditionally credited as the author of Proverbs, Ecclesiastes, and Song of Songs."
     }
   },
   {
@@ -631,7 +631,7 @@
     "priest": "no",
     "disciple": "no",
     "apostle": "no",
-    "wrote_biblical_book": "debated",
+    "wrote_biblical_book": "yes",
     "genealogy_recorded": false,
     "family_members": [
       "Father: Amittai"
@@ -664,7 +664,7 @@
     ],
     "short_description": "A reluctant prophet who fled God's call to preach to Nineveh, was swallowed by a great fish, and later resented God's mercy when the city repented.",
     "notes": {
-      "wrote_biblical_book": "Traditionally credited as the book’s author, though it is written in the third person."
+      "wrote_biblical_book": "The book is written in the third person about Jonah, but he is traditionally credited as its author."
     }
   },
   {
@@ -1174,7 +1174,7 @@
     "priest": "no",
     "disciple": "no",
     "apostle": "no",
-    "wrote_biblical_book": "debated",
+    "wrote_biblical_book": "yes",
     "genealogy_recorded": true,
     "family_members": [],
     "associated_people": [
@@ -1209,7 +1209,7 @@
     ],
     "short_description": "Moses's faithful assistant and one of the twelve spies, Joshua succeeded Moses to lead Israel across the Jordan River and conquer the Promised Land.",
     "notes": {
-      "wrote_biblical_book": "Tradition credits him with most of the Book of Joshua, though it records his own death (Joshua 24:29-30), implying a later hand completed it."
+      "wrote_biblical_book": "Traditionally credited as the author of the Book of Joshua, which also records the account of his own death, added by a later hand."
     }
   },
   {
@@ -3975,7 +3975,7 @@
     "priest": "no",
     "disciple": "yes",
     "apostle": "yes",
-    "wrote_biblical_book": "debated",
+    "wrote_biblical_book": "yes",
     "genealogy_recorded": false,
     "family_members": [
       "Father: Zebedee",
@@ -4019,7 +4019,7 @@
     "short_description": "One of Jesus's inner circle of three apostles and traditionally called 'the disciple whom Jesus loved,' John is traditionally credited with writing the Gospel of John, three epistles, and Revelation.",
     "notes": {
       "name": "Distinct from John the Baptist (a different person entirely, in this database) and from John Mark (author-companion of Paul and Barnabas, also in this database). This is John son of Zebedee, brother of James, one of the Twelve.",
-      "wrote_biblical_book": "Traditional church history (2nd century onward) attributes the Gospel of John, 1-3 John, and Revelation to this John; modern scholarship debates common authorship of all these works, so this is marked debated.",
+      "wrote_biblical_book": "Traditionally credited as the author of the Gospel of John, 1-3 John, and Revelation.",
       "prophet": "As the traditional recipient of the visions recorded in Revelation, John is sometimes regarded as functioning prophetically, though he is primarily identified in Scripture as an apostle.",
       "violent_death": "Unlike most of the other apostles, John is traditionally believed to have died of natural causes in old age at Ephesus, though this is extra-biblical tradition rather than Scripture."
     }
@@ -5862,7 +5862,7 @@
     "priest": "no",
     "disciple": "yes",
     "apostle": "no",
-    "wrote_biblical_book": "debated",
+    "wrote_biblical_book": "yes",
     "genealogy_recorded": false,
     "family_members": [
       "Mother: Mary",
@@ -5903,7 +5903,7 @@
     "short_description": "A cousin of Barnabas whose early departure from Paul's first missionary journey caused a rift between Paul and Barnabas, John Mark later reconciled with Paul, assisted Peter, and is traditionally credited as the author of the Gospel of Mark.",
     "notes": {
       "name": "Also called simply 'Mark' or, traditionally, 'Mark the Evangelist' — one person, not a separate figure.",
-      "wrote_biblical_book": "Early church tradition (e.g., the 2nd-century writer Papias) holds that Mark wrote his Gospel based on Peter's preaching; the Gospel itself does not name its author."
+      "wrote_biblical_book": "Traditionally credited as the author of the Gospel of Mark, based on the preaching of Peter."
     }
   },
   {
@@ -5931,7 +5931,7 @@
     "priest": "no",
     "disciple": "yes",
     "apostle": "no",
-    "wrote_biblical_book": "debated",
+    "wrote_biblical_book": "yes",
     "genealogy_recorded": false,
     "family_members": [],
     "associated_people": [
@@ -5962,7 +5962,7 @@
     ],
     "short_description": "A physician and Gentile companion of Paul on his missionary journeys, Luke traditionally authored both the Gospel of Luke and the Book of Acts, and stayed loyally with Paul through his final imprisonment.",
     "notes": {
-      "wrote_biblical_book": "Luke and Acts are internally anonymous but are addressed to the same 'Theophilus' by the same author (Luke 1:3, Acts 1:1); church tradition from the 2nd century identifies that author as Luke the physician. Neither book names Luke directly — his presence is inferred from the 'we' passages in Acts and Paul's letters."
+      "wrote_biblical_book": "Traditionally credited as the author of the Gospel of Luke and the Book of Acts, both addressed to 'Theophilus.'"
     }
   },
   {
@@ -6062,7 +6062,7 @@
     "priest": "no",
     "disciple": "yes",
     "apostle": "no",
-    "wrote_biblical_book": "debated",
+    "wrote_biblical_book": "yes",
     "genealogy_recorded": false,
     "family_members": [
       "Mother: Mary",
@@ -6111,7 +6111,7 @@
     "notes": {
       "disciple": "James and his brothers did not believe in Jesus during his earthly ministry (John 7:5); he was not one of the original Twelve and became a follower only after a personal resurrection appearance (1 Corinthians 15:7).",
       "apostle": "Not one of the Twelve. Galatians 1:19 ('I saw none of the other apostles — only James, the Lord's brother') is ambiguous in the Greek and is sometimes read as loosely calling him an apostle in a broader sense, but he is never listed among the Twelve.",
-      "wrote_biblical_book": "The Epistle of James identifies its author only as 'James, a servant of God' (James 1:1); tradition attributes it to Jesus's brother rather than James son of Zebedee (martyred early, per Acts 12:2) or James son of Alphaeus.",
+      "wrote_biblical_book": "Traditionally credited as the author of the Epistle of James.",
       "violent_death": "The 1st-century historian Josephus records that James was stoned to death around AD 62 at the order of the high priest Ananus, but this event is not recorded in Scripture itself."
     }
   },
@@ -6142,7 +6142,7 @@
     "priest": "no",
     "disciple": "yes",
     "apostle": "yes",
-    "wrote_biblical_book": "debated",
+    "wrote_biblical_book": "yes",
     "genealogy_recorded": false,
     "family_members": [
       "Father: Alphaeus"
@@ -6176,7 +6176,7 @@
     "notes": {
       "name": "Called 'Matthew' in Matthew 9:9 and 'Levi' in Mark 2:14 and Luke 5:27 — one person under two names, common for Jews of the period.",
       "family_members": "Mark 2:14 names Matthew's father as Alphaeus — the same name as the father of James son of Alphaeus, another of the Twelve — though Scripture doesn't say whether the two were related.",
-      "wrote_biblical_book": "The Gospel of Matthew is internally anonymous; the traditional attribution to the apostle Matthew comes from early church writers such as Papias."
+      "wrote_biblical_book": "Traditionally credited as the author of the Gospel of Matthew."
     }
   },
   {
@@ -13056,7 +13056,7 @@
     "priest": "no",
     "disciple": "yes",
     "apostle": "no",
-    "wrote_biblical_book": "debated",
+    "wrote_biblical_book": "yes",
     "genealogy_recorded": false,
     "family_members": [
       "Mother: Mary",
@@ -13091,7 +13091,7 @@
     "short_description": "A younger half-brother of Jesus and brother of James, Jude is traditionally identified as the author of the short New Testament epistle bearing his name, which warns against false teachers.",
     "notes": {
       "name": "Distinct from the apostle Thaddaeus, also called Judas son of James, who was one of the Twelve during Jesus's earthly ministry; this Jude was Jesus's half-brother and was not one of the Twelve.",
-      "wrote_biblical_book": "The epistle identifies its author only as \"Jude, a servant of Jesus Christ and brother of James\" (Jude 1:1); traditional interpretation identifies this James as Jesus's brother who led the Jerusalem church, making Jude another brother of Jesus, though some scholars debate the identification."
+      "wrote_biblical_book": "Traditionally credited as the author of the Epistle of Jude."
     }
   },
   {

@@ -103,7 +103,7 @@ QUESTION_BANK = [
     },
     {
         "id": "wrote_book", "category": "Role", "label": "Did you write a book of the Bible?",
-        "match": lambda t: re.search(r"\b(write|wrote|writer|author(ed)?)\b", t) is not None and re.search(r"\bbook(s)?\b|\bbible\b|\bscripture(s)?\b", t) is not None,
+        "match": lambda t: re.search(r"\b(writ(e|es|ing|er)|wrote|written|author(ed|ing)?)\b", t) is not None and re.search(r"\bbook(s)?\b|\bbible\b|\bscripture(s)?\b", t) is not None,
         "evaluate": lambda c: answer_from_tri_state(c["wrote_biblical_book"], "Authorship is traditionally held but debated by some scholars."),
     },
 

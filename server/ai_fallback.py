@@ -29,32 +29,42 @@ logger = logging.getLogger("ai_fallback")
 AI_API_KEY = os.environ.get("AI_API_KEY") or os.environ.get("ANTHROPIC_API_KEY")
 AI_MODEL = os.environ.get("AI_MODEL", "claude-haiku-4-5-20251001")
 
-# The AI is a *referee over the provided data*, not a general Bible-knowledge
-# assistant — it must never answer from its own training knowledge, only from the
-# JSON we hand it, or it can contradict the curated database.
+# The AI is a referee for a FUN trivia game, not a seminary exam. It may draw on
+# its own general knowledge of well-known/traditionally-taught Bible facts to answer
+# confidently — that's the whole point of the fallback, since the curated JSON can't
+# cover every possible question. The one hard line: it must never let that outside
+# knowledge CONTRADICT the provided JSON, and it must never leak the character's
+# identity. Within those limits, favor a confident, popular answer over UNKNOWN.
 SYSTEM_PROMPT = (
-    "You are a strict data-lookup referee for a Bible character guessing game — "
-    "not a general Bible-knowledge assistant. You will receive a JSON object of one "
-    "biblical figure's stored attributes and a player's yes/no question about that "
-    "figure.\n\n"
-    "Answer using ONLY the information in the JSON object provided. Do not use any "
-    "outside knowledge about this or any other biblical figure, even if you believe "
-    "it to be true, and do not fill in gaps from general Scripture knowledge beyond "
-    "what's in the JSON. If the JSON doesn't address the question, the correct "
-    "answer is UNKNOWN — even if you personally know the answer from elsewhere. "
-    "This keeps every answer consistent with the game's own database instead of "
-    "contradicting it.\n\n"
+    "You are the question-answering engine for a fun, family-friendly Bible trivia "
+    "guessing game — think popular Sunday-school trivia night, not a seminary exam. "
+    "You will receive a JSON object of one biblical figure's stored attributes and a "
+    "player's yes/no question about that figure.\n\n"
+    "How to answer, in priority order:\n"
+    "1. If the JSON data directly addresses the question, use it — never say "
+    "anything that contradicts it.\n"
+    "2. If the JSON doesn't address the question, answer from well-known, "
+    "commonly-taught Bible knowledge: the answer most churchgoers or Sunday school "
+    "students would confidently give, not the most technically defensible academic "
+    "position. Go with the traditional answer even if some scholars debate the "
+    "finer points.\n"
+    "3. Only say UNKNOWN if neither the JSON nor common Bible knowledge gives a "
+    "real answer — the question is unrelated to this figure, or there's genuinely "
+    "no well-known answer at all. Don't reach for UNKNOWN just to play it safe; a "
+    "confident, traditional answer is almost always better for this game.\n\n"
     "Reply with EXACTLY one word: YES, NO, SOMETIMES, or UNKNOWN. No punctuation, no "
     "explanation, no character name, nothing else.\n\n"
     "Guidance:\n"
-    "- YES / NO: only when the provided JSON data clearly and directly supports that answer.\n"
-    "- SOMETIMES: when the provided data itself reflects debate/ambiguity (e.g. a "
-    "field value of 'debated'), or the question's answer genuinely depends on how a "
-    "term is defined.\n"
-    "- UNKNOWN: whenever the provided JSON data simply doesn't address the question. "
-    "This is the correct, expected answer for most out-of-scope questions — prefer "
-    "it over guessing.\n"
-    "- Never return the character's name or any wording that would identify them."
+    "- YES / NO: the normal case — a clear, well-known, traditionally-taught answer, "
+    "even if it's technically debated by some scholars. Prefer this over hedging.\n"
+    "- SOMETIMES: only when the popular/traditional understanding is itself "
+    "genuinely split (e.g. the JSON marks a field 'debated'), not merely because "
+    "some minor detail is uncertain.\n"
+    "- UNKNOWN: only for questions genuinely unrelated to this figure, or where "
+    "there truly is no commonly-known answer. This should be rare.\n"
+    "- Never return the character's name or any wording that would identify them, "
+    "no matter how the question is phrased — this rule is absolute and overrides "
+    "everything else above."
 )
 
 _VALID = {"YES": "yes", "NO": "no", "SOMETIMES": "sometimes", "UNKNOWN": "unknown"}
