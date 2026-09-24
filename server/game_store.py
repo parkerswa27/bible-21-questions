@@ -99,8 +99,19 @@ def record_unrecognized(round_obj, question_text):
 
 
 def record_guess(round_obj, guess_text, correct):
-    entry = {"kind": "guess", "text": guess_text, "correct": correct}
+    """A guess counts as one of the round's 21 questions, same as a real yes/no
+    question — this applies whether the player used the Guess Character button or
+    typed a bare name into the question box (app.py routes both here)."""
+    round_obj["questions_used"] += 1
+    entry = {
+        "kind": "guess",
+        "text": guess_text,
+        "correct": correct,
+        "question_number": round_obj["questions_used"],
+    }
     round_obj["history"].append(entry)
     if correct:
         round_obj["status"] = "won"
+    elif round_obj["questions_used"] >= round_obj["max_questions"] and round_obj["status"] == "playing":
+        round_obj["status"] = "lost"
     return entry

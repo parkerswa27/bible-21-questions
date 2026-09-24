@@ -96,7 +96,7 @@ def public_entry_view(entry):
             "answer": {"type": entry["answer"]["type"], "label": entry["answer"]["label"], "hint": entry["answer"]["hint"]},
         }
     if entry["kind"] == "guess":
-        return {"kind": "guess", "text": entry["text"], "correct": entry["correct"]}
+        return {"kind": "guess", "text": entry["text"], "correct": entry["correct"], "questionNumber": entry["question_number"]}
     return {"kind": "unrecognized", "text": entry["text"]}
 
 
@@ -170,8 +170,9 @@ def ask_question(round_id):
     all_characters = data_loader.get_all_characters()
 
     # A bare "David" typed into the question box isn't a question at all — treat it
-    # as a guess (doesn't cost a question turn) instead of dying as unparseable or
-    # burning an AI call on something that was never yes/no in the first place.
+    # as a guess (still counts as one of the 21, same as the Guess Character button)
+    # instead of dying as unparseable or burning an AI call on something that was
+    # never yes/no in the first place.
     if looks_like_name_guess(text, all_characters):
         correct = check_guess(text, round_obj["character"])
         entry = game_store.record_guess(round_obj, text, correct)

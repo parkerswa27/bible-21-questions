@@ -17,7 +17,7 @@ function renderHistory(history) {
     if (entry.kind === 'guess') {
       return `
         <div class="entry entry--guess">
-          <div class="entry__q">🤔 Guess: <strong>${escapeHtml(entry.text)}</strong></div>
+          <div class="entry__q"><span class="entry__q-num">Q${entry.questionNumber}</span>🤔 Guess: <strong>${escapeHtml(entry.text)}</strong></div>
           <div class="entry__a ${entry.correct ? 'correct' : 'incorrect'}">${entry.correct ? 'That\'s correct! 🎉' : 'Not quite — keep asking!'}</div>
         </div>`;
     }
@@ -71,7 +71,7 @@ export function renderGame(root, { round, busy, onAsk, onGuess, onRestart, onQui
         <div class="suggested">
           ${SUGGESTED_QUESTIONS.map((q) => `<button type="button" class="chip" data-q="${escapeHtml(q)}" ${disabled ? 'disabled' : ''}>${escapeHtml(q)}</button>`).join('')}
         </div>
-        <div class="composer__hint">${busy ? 'Thinking…' : `${round.questionsRemaining} question${round.questionsRemaining === 1 ? '' : 's'} remaining. Guessing doesn't use up a question.`}</div>
+        <div class="composer__hint">${busy ? 'Thinking…' : `${round.questionsRemaining} question${round.questionsRemaining === 1 ? '' : 's'} remaining. A guess counts as one of your 21, so make it count!`}</div>
       </div>
 
       <div class="game__footer">

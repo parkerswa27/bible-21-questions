@@ -48,7 +48,10 @@ enable it, copy `.env.example` to `.env` in the project root and set
    every character who could produce that answer, so it can never single one
    out.
 3. `POST /api/rounds/<id>/guess` checks a guess against the secret character's
-   name (or a known alternate name) server-side.
+   name (or a known alternate name) server-side. A guess counts as one of the
+   round's 21 questions, whether it's right or wrong — same as a real question,
+   it can end the round (a correct guess wins immediately; a wrong guess on your
+   last question loses it).
 4. `GET /api/rounds/<id>/reveal` only works once the round has ended (won or
    lost) — it 403s otherwise. Only then do you get the character's name,
    description, and scripture references.
